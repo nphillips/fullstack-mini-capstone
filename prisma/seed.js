@@ -1,6 +1,7 @@
 const { faker } = require("@faker-js/faker");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const bcrypt = require("bcryptjs");
 
 const createDepts = async () => {
   const depts = Array.from({ length: 3 }).map(() => ({
@@ -30,9 +31,28 @@ const createProfs = async (departments) => {
   await prisma.professor.createMany({ data: profs });
 };
 
+const createUsers = async () => {
+  const users = [
+    { username: "joe", password: "joe_pw" },
+    { username: "alice", password: "alice_pw" },
+    { username: "bob", password: "bob_pw" },
+  ];
+
+  for (const user of users) {
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    await prisma.user.create({
+      data: {
+        username: user.username,
+        password: hashedPassword,
+      },
+    });
+  }
+};
+
 const seed = async () => {
   const departments = await createDepts();
   await createProfs(departments);
+  await createUsers();
 };
 
 seed()

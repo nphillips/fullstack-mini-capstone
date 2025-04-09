@@ -27,7 +27,11 @@ const PageProfList = () => {
 
       <ul>
         {professors.map((prof) => {
-          return <li key={prof.id}>{prof.name}</li>;
+          return (
+            <li key={prof.id}>
+              <Link to={`/professors/${prof.id}`}>{prof.name}</Link>
+            </li>
+          );
         })}
       </ul>
     </>

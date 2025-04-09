@@ -138,6 +138,7 @@ const init = async () => {
   console.log("connecting to database");
   await client.connect();
   console.log("connected to database");
+
   const port = process.env.PORT || 3000;
   app.listen(port, () => console.log(`listening on port ${port}`));
 };
