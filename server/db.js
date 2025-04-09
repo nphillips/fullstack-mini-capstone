@@ -10,7 +10,7 @@ const JWT = process.env.JWT;
 const authenticate = async ({ username, password }) => {
   const SQL = `
     SELECT id, password
-    FROM users
+    FROM "User"
     WHERE username = $1
   `;
   const response = await client.query(SQL, [username]);
@@ -28,7 +28,7 @@ const authenticate = async ({ username, password }) => {
 const findUserByToken = async (token) => {
   try {
     const { id } = jwt.verify(token, JWT);
-    const SQL = `SELECT id, username FROM users WHERE id = $1`;
+    const SQL = `SELECT id, username FROM "User" WHERE id = $1`;
     const response = await client.query(SQL, [id]);
     if (!response.rows.length) throw Error("not authorized");
     return response.rows[0];
@@ -41,7 +41,7 @@ const findUserByToken = async (token) => {
 
 //register admin
 const register = async ({ username, password }) => {
-  const SQL = `INSERT INTO users (id, username, password) VALUES ($1, $2, $3) RETURNING *`;
+  const SQL = `INSERT INTO "User" (id, username, password) VALUES ($1, $2, $3) RETURNING *`;
   const hash = await bcrypt.hash(password, 5);
   const response = await client.query(SQL, [uuid.v4(), username, hash]);
   return response.rows[0];
