@@ -1,11 +1,15 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 const Tabs = () => {
+  const location = useLocation();
+
   return (
     <div className="tabs">
       <NavLink
         to="/departments"
-        className={({ isActive }) => (isActive ? "tab active" : "tab")}
+        className={({ isActive }) =>
+          isActive || location.pathname === "/" ? "tab active" : "tab"
+        }
       >
         Departments
       </NavLink>

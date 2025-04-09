@@ -13,6 +13,8 @@ const {
   client,
   fetchDepts,
   fetchProfs,
+  fetchDepartmentById,
+  fetchProfessorById,
 } = require("./db");
 
 //for deployment only
@@ -37,6 +39,32 @@ app.get("/api/departments", async (req, res, next) => {
 app.get("/api/professors", async (req, res, next) => {
   try {
     res.send(await fetchProfs());
+  } catch (ex) {
+    next(ex);
+  }
+});
+
+app.get("/api/departments/:id", async (req, res, next) => {
+  try {
+    const department = await fetchDepartmentById(req.params.id);
+    if (!department) {
+      res.status(404).send({ error: "Department not found" });
+      return;
+    }
+    res.send(department);
+  } catch (ex) {
+    next(ex);
+  }
+});
+
+app.get("/api/professors/:id", async (req, res, next) => {
+  try {
+    const professor = await fetchProfessorById(req.params.id);
+    if (!professor) {
+      res.status(404).send({ error: "Professor not found" });
+      return;
+    }
+    res.send(professor);
   } catch (ex) {
     next(ex);
   }

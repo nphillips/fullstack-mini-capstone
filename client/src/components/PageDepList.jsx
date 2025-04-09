@@ -27,7 +27,11 @@ const PageDepList = () => {
 
       <ul>
         {departments.map((dep) => {
-          return <li key={dep.id}>{dep.name}</li>;
+          return (
+            <li key={dep.id}>
+              <Link to={`/departments/${dep.id}`}>{dep.name}</Link>
+            </li>
+          );
         })}
       </ul>
     </>

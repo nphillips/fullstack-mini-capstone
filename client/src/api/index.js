@@ -27,3 +27,31 @@ export const FetchAllProfs = async () => {
     return [];
   }
 };
+
+export const FetchDepartmentById = async (id) => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/departments/${id}`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("FetchDepartmentById error:", error);
+    return null;
+  }
+};
+
+export const FetchProfessorById = async (id) => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/professors/${id}`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("FetchProfessorById error:", error);
+    return null;
+  }
+};
