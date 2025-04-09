@@ -66,7 +66,16 @@ app.post("/api/register", async (req, res, next) => {
   }
 });
 
-app.post("/api/login", async (req, res, next) => {
+app.get("/api/auth/me", async (req, res, next) => {
+  try {
+    const user = await findUserByToken(req.headers.authorization);
+    res.send(user);
+  } catch (ex) {
+    next(ex);
+  }
+});
+
+app.post("/api/auth/login", async (req, res, next) => {
   try {
     res.send(await authenticate(req.body));
   } catch (ex) {
