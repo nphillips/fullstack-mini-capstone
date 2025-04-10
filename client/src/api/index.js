@@ -56,7 +56,7 @@ export const FetchAllProfs = async () => {
       throw new Error("Network response was not ok");
     }
     const result = await response.json();
-    return result; // ✅ this matches a raw array response
+    return result;
   } catch (error) {
     console.error("FetchProfs error:", error);
     return [];

@@ -22,7 +22,21 @@ const {
   deleteProf,
 } = require("./db");
 
-//public routes
+//ADDING JWT ath middleware 
+const requireToken = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization;
+    if (!token) throw Error("Missing token");
+
+    const user = await findUserByToken(token);
+    req.user = user; 
+    next();
+  } catch (err) {
+    res.status(401).send({ error: "Unauthorized. Invalid or missing token." });
+  }
+};
+
+//Public Routes
 app.get("/api/departments", async (req, res, next) => {
   try {
     res.send(await fetchDepts());
@@ -57,10 +71,18 @@ app.get("/api/professors/:id", async (req, res, next) => {
   }
 });
 
-//auth routes
+//Auth Routes
 app.post("/api/register", async (req, res, next) => {
   try {
     res.send(await register(req.body));
+  } catch (ex) {
+    next(ex);
+  }
+});
+
+app.post("/api/auth/login", async (req, res, next) => {
+  try {
+    res.send(await authenticate(req.body));
   } catch (ex) {
     next(ex);
   }
@@ -75,16 +97,10 @@ app.get("/api/auth/me", async (req, res, next) => {
   }
 });
 
-app.post("/api/auth/login", async (req, res, next) => {
-  try {
-    res.send(await authenticate(req.body));
-  } catch (ex) {
-    next(ex);
-  }
-});
-
-//department CRUD
-app.post("/api/departments", async (req, res, next) => {
+//Admin-Only Routes (Protected)
+//They now require valid token
+//Department CRUD
+app.post("/api/departments", requireToken, async (req, res, next) => {
   try {
     res.send(await createDept(req.body));
   } catch (ex) {
@@ -92,7 +108,7 @@ app.post("/api/departments", async (req, res, next) => {
   }
 });
 
-app.patch("/api/departments/:id", async (req, res, next) => {
+app.patch("/api/departments/:id", requireToken, async (req, res, next) => {
   try {
     res.send(await updateDept(req.params.id, req.body));
   } catch (ex) {
@@ -100,7 +116,7 @@ app.patch("/api/departments/:id", async (req, res, next) => {
   }
 });
 
-app.delete("/api/departments/:id", async (req, res, next) => {
+app.delete("/api/departments/:id", requireToken, async (req, res, next) => {
   try {
     res.send(await deleteDept(req.params.id));
   } catch (ex) {
@@ -108,8 +124,8 @@ app.delete("/api/departments/:id", async (req, res, next) => {
   }
 });
 
-//professor CRUD
-app.post("/api/professors", async (req, res, next) => {
+//Professor CRUD
+app.post("/api/professors", requireToken, async (req, res, next) => {
   try {
     res.send(await createProf(req.body));
   } catch (ex) {
@@ -117,7 +133,7 @@ app.post("/api/professors", async (req, res, next) => {
   }
 });
 
-app.patch("/api/professors/:id", async (req, res, next) => {
+app.patch("/api/professors/:id", requireToken, async (req, res, next) => {
   try {
     res.send(await updateProf(req.params.id, req.body));
   } catch (ex) {
@@ -125,7 +141,7 @@ app.patch("/api/professors/:id", async (req, res, next) => {
   }
 });
 
-app.delete("/api/professors/:id", async (req, res, next) => {
+app.delete("/api/professors/:id", requireToken, async (req, res, next) => {
   try {
     res.send(await deleteProf(req.params.id));
   } catch (ex) {
@@ -133,7 +149,7 @@ app.delete("/api/professors/:id", async (req, res, next) => {
   }
 });
 
-//start server
+//Deployment Setup
 const path = require("path");
 app.get("/", (req, res) =>
   res.sendFile(path.join(__dirname, "../client/dist/index.html"))
@@ -143,6 +159,7 @@ app.use(
   express.static(path.join(__dirname, "../client/dist/assets"))
 );
 
+//Server start
 const init = async () => {
   console.log("connecting to database");
   await client.connect();
