@@ -20,16 +20,21 @@ const {
   createProf,
   updateProf,
   deleteProf,
+  assignProfessorToDepartment,
+  removeProfessorFromDepartment,
 } = require("./db");
 
-//ADDING JWT ath middleware 
+//ADDING JWT ath middleware
 const requireToken = async (req, res, next) => {
   try {
-    const token = req.headers.authorization;
-    if (!token) throw Error("Missing token");
+    const authHeader = req.headers.authorization;
+    if (!authHeader) throw Error("Missing token");
 
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7)
+      : authHeader;
     const user = await findUserByToken(token);
-    req.user = user; 
+    req.user = user;
     next();
   } catch (err) {
     res.status(401).send({ error: "Unauthorized. Invalid or missing token." });
@@ -90,7 +95,13 @@ app.post("/api/auth/login", async (req, res, next) => {
 
 app.get("/api/auth/me", async (req, res, next) => {
   try {
-    const user = await findUserByToken(req.headers.authorization);
+    const authHeader = req.headers.authorization;
+    if (!authHeader) throw Error("Missing token");
+
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7)
+      : authHeader;
+    const user = await findUserByToken(token);
     res.send(user);
   } catch (ex) {
     next(ex);
@@ -146,6 +157,35 @@ app.delete("/api/professors/:id", requireToken, async (req, res, next) => {
     res.send(await deleteProf(req.params.id));
   } catch (ex) {
     next(ex);
+  }
+});
+
+// Assign professor to department
+app.post("/api/professors/:id/assign", requireToken, async (req, res, next) => {
+  try {
+    const { departmentId } = req.body;
+    if (!departmentId) {
+      return res.status(400).send({ error: "Department ID is required" });
+    }
+    res.send(await assignProfessorToDepartment(req.params.id, departmentId));
+  } catch (ex) {
+    next(ex);
+  }
+});
+
+// Remove professor from department
+app.post("/api/professors/:id/remove", requireToken, async (req, res, next) => {
+  try {
+    const result = await removeProfessorFromDepartment(req.params.id);
+    if (!result) {
+      return res.status(404).json({ error: "Professor not found" });
+    }
+    res.json(result);
+  } catch (ex) {
+    console.error("Error removing professor:", ex);
+    res
+      .status(500)
+      .json({ error: "Failed to remove professor from department" });
   }
 });
 

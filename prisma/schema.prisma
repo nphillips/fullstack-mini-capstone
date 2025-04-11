@@ -28,8 +28,8 @@ model Professor {
   bio          String
   profileImg   String
   email        String
-  department   Department @relation(fields: [departmentId], references: [id])
-  departmentId String
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId String?
 }
 
 model User {

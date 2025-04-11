@@ -138,7 +138,7 @@ const fetchProfs = async () => {
     SELECT p.id, p.name, p.bio, p."profileImg", p.email,
            d.id AS department_id, d.name AS department_name
     FROM "Professor" p
-    JOIN "Department" d ON p."departmentId" = d.id
+    LEFT JOIN "Department" d ON p."departmentId" = d.id
   `;
   const response = await client.query(SQL);
   return response.rows;
@@ -149,7 +149,7 @@ const fetchProfById = async (id) => {
     SELECT p.id, p.name, p.bio, p."profileImg", p.email,
            d.id AS department_id, d.name AS department_name
     FROM "Professor" p
-    JOIN "Department" d ON p."departmentId" = d.id
+    LEFT JOIN "Department" d ON p."departmentId" = d.id
     WHERE p.id = $1
   `;
   const response = await client.query(SQL, [id]);
@@ -198,6 +198,28 @@ const deleteProf = async (id) => {
   return response.rows[0];
 };
 
+const assignProfessorToDepartment = async (professorId, departmentId) => {
+  const SQL = `
+    UPDATE "Professor"
+    SET "departmentId" = $1
+    WHERE id = $2
+    RETURNING *
+  `;
+  const response = await client.query(SQL, [departmentId, professorId]);
+  return response.rows[0];
+};
+
+const removeProfessorFromDepartment = async (professorId) => {
+  const SQL = `
+    UPDATE "Professor"
+    SET "departmentId" = NULL
+    WHERE id = $1
+    RETURNING *
+  `;
+  const response = await client.query(SQL, [professorId]);
+  return response.rows[0];
+};
+
 module.exports = {
   client,
   authenticate,
@@ -213,4 +235,6 @@ module.exports = {
   createProf,
   updateProf,
   deleteProf,
+  assignProfessorToDepartment,
+  removeProfessorFromDepartment,
 };

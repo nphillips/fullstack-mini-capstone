@@ -1,4 +1,26 @@
 @import "tailwindcss";
+:root {
+  --bg-butt: linear-gradient(
+    0deg,
+    hsl(61deg 62% 73%) 0%,
+    hsl(56deg 65% 74%) 8%,
+    hsl(51deg 70% 74%) 17%,
+    hsl(47deg 74% 75%) 25%,
+    hsl(44deg 78% 76%) 33%,
+    hsl(41deg 81% 77%) 42%,
+    hsl(38deg 84% 78%) 50%,
+    hsl(43deg 67% 73%) 58%,
+    hsl(50deg 54% 69%) 67%,
+    hsl(58deg 42% 64%) 75%,
+    hsl(69deg 40% 62%) 83%,
+    hsl(79deg 39% 60%) 92%,
+    hsl(91deg 38% 59%) 100%
+  );
+}
+@theme {
+  --font-fraunces: "Fraunces", serif;
+  --bg-butt: var(--bg-butt);
+}
 .logo {
   background: #eee;
   padding-top: 1rem;
@@ -6,7 +28,7 @@
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 1.5rem;
@@ -25,4 +47,7 @@
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   border-radius: 2px 2px 0 0;
+}
+
+.page-dept-crypto {
 }

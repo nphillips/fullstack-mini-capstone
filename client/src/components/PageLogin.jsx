@@ -1,77 +1,79 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login, attemptLoginWithToken } from "../api/index.js";
+import { Input } from "./ui/input";
 
-const PageLogin = () => {
+const PageLogin = ({ setIsLoggedIn, setUser }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [auth, setAuth] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    attemptLoginWithToken(setAuth);
-  }, []);
+    // Check if user is already logged in
+    const token = localStorage.getItem("token");
+    if (token) {
+      attemptLoginWithToken(setUser)
+        .then((userData) => {
+          if (userData) {
+            setIsLoggedIn(true);
+            navigate("/departments");
+          }
+        })
+        .catch((error) => {
+          console.error("Login attempt failed:", error);
+          localStorage.removeItem("token");
+          setIsLoggedIn(false);
+          setUser(null);
+        });
+    }
+  }, [navigate, setIsLoggedIn, setUser]);
 
   const submit = (ev) => {
     ev.preventDefault();
     setError("");
-    login({ username, password }, setAuth)
-      .then(() => {
-        navigate("/departments");
-      })
-      .catch((err) => {
-        setError(err.message || "Login failed");
-      });
+    login({ username, password }, (userData) => {
+      setIsLoggedIn(true);
+      setUser(userData);
+      navigate("/departments");
+    }).catch((err) => {
+      setError(err.message || "Login failed");
+    });
   };
 
   return (
-    <>
-      <h1>Login</h1>
+    <div>
+      <div className="hero bg-radial-[at_50%_75%] from-[#F3E4B5]/50 via-[#F4E3A5]/50 to-[#8CA28C]/50 to-90%"></div>
+      <h1 className="text-2xl font-bold text-blue-900 my-6">Login</h1>
       <form
         onSubmit={submit}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: ".125rem",
-          maxWidth: "300px",
-          boxShadow:
-            "0px 1px 1px rgba(3, 7, 18, 0.02),0px 5px 4px rgba(3, 7, 18, 0.03),0px 12px 9px rgba(3, 7, 18, 0.05),0px 20px 15px rgba(3, 7, 18, 0.06),0px 32px 24px rgba(3, 7, 18, 0.08)",
-          borderRadius: ".5rem",
-          padding: "1rem",
-        }}
+        className="flex flex-col gap-4 max-w-[400px] bg-white/50 p-6 rounded-lg shadow-lg"
       >
-        <h2>Register</h2>
-        <input
+        <Input
           value={username}
           type="text"
           placeholder="username"
           onChange={(ev) => setUsername(ev.target.value)}
-          style={{
-            padding: ".5rem",
-            borderRadius: ".25rem",
-            border: "1px solid #ccc",
-          }}
+          className="bg-white"
         />
-        <input
+        <Input
           value={password}
           type="password"
           placeholder="password"
           onChange={(ev) => setPassword(ev.target.value)}
-          style={{
-            padding: ".5rem",
-            borderRadius: ".25rem",
-            border: "1px solid #ccc",
-          }}
+          className="bg-white"
         />
         <div>
-          <button className="text-white" disabled={!username || !password}>
-            Register
+          <button
+            className="text-white bg-blue-900 px-4 py-2 rounded-md"
+            disabled={!username || !password}
+          >
+            Login
           </button>
         </div>
         {error && <div style={{ color: "red" }}>{error}</div>}
       </form>
-    </>
+    </div>
   );
 };
 
